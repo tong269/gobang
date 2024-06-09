@@ -9,7 +9,7 @@ GobangServer server;
 
 void handleCtrlC(int num);
 void exitFunc();
-
+//程序入口
 int main(int argc, char** argv) {
     //退出时执行exitfunc
     atexit(exitFunc);
