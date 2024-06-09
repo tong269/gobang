@@ -41,13 +41,13 @@ int recvJsonMsg(Json::Value& root, SocketFD fd) {
     char lengthStr[5] = { 0 };
     char msgLengthInfo[13] = { 0 };
 
-    //接收信息
+    //接收信息,先接受12个字节 length:(8字节) + int(4字节)
     int n = recv(fd, msgLengthInfo, 12, 0);
     if (n <= 0)
         return -1;
     if (n < 12)
         return 0;
-
+    //获取消息长度 （length:）
     memcpy(temp, msgLengthInfo, 7);
     memcpy(lengthStr, msgLengthInfo+7, 4);
     temp[7] = 0;
@@ -73,6 +73,7 @@ int recvJsonMsg(Json::Value& root, SocketFD fd) {
         }
 
         Json::Reader reader;
+        //解析json消息到root里面去
         if (!reader.parse(jsonMsg, root))
             break;
 

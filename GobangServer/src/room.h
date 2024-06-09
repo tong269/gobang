@@ -18,46 +18,46 @@ public:
     ~Room() {}
 
 public:
-    void initChessBoard();
+    void initChessBoard();                                                  //初始化棋盘
 
-    int getId() const { return id; }
-    void setId(int idIn) { id = idIn; }
-    const std::string& getName() const { return name; }
-    void setName(const std::string& nameIn) { name = nameIn; }
+    int getId() const { return id; }                                        //获取房间ID
+    void setId(int idIn) { id = idIn; }                                     //设置房间ID
+    const std::string& getName() const { return name; }                     //获取房间名字
+    void setName(const std::string& nameIn) { name = nameIn; }              //设置房间名字 
 
-    int getNumPlayers() const { return numPlayers; }
-    int getNumWatchers() const { return watchers.size(); }
-    bool isFull() const { return watchers.size() >= MAX_NUM_WATCHERS; }
+    int getNumPlayers() const { return numPlayers; }                        //获取房间玩家数量
+    int getNumWatchers() const { return watchers.size(); }                  //获取观战人数
+    bool isFull() const { return watchers.size() >= MAX_NUM_WATCHERS; }     //房间是否满了
 
-    void addPlayer(const std::string& name, SocketFD fd);
-    void addWatcher(const std::string& name, SocketFD fd);
-    void quitPlayer(SocketFD fd);
-    void quitWatcher(SocketFD fd);
+    void addPlayer(const std::string& name, SocketFD fd);                   //添加一名玩家
+    void addWatcher(const std::string& name, SocketFD fd);                  //添加一名观众
+    void quitPlayer(SocketFD fd);                                           //踢出一名玩家
+    void quitWatcher(SocketFD fd);                                          //踢出一名观众
 
-    Player& getPlayer1() { return player1; }
-    Player& getPlayer2() { return player2; }
-    Player* getPlayer(SocketFD fd);
-    Player* getRival(int my_fd);
+    Player& getPlayer1() { return player1; }                                //获取玩家1
+    Player& getPlayer2() { return player2; }                                //获取玩家2
+    Player* getPlayer(SocketFD fd);                                         //通过玩家的socket找到玩家
+    Player* getRival(int my_fd);                                            //获取对手
 
-    bool shouldDelete() const { return flagShouldDelete; }
+    bool shouldDelete() const { return flagShouldDelete; }                  //是否应该删除房间
 
 private:
-    void setPiece(int row, int col, ChessType type);
+    void setPiece(int row, int col, ChessType type);                        //放置棋子
 
-    bool parseJsonMsg(const Json::Value& root, SocketFD fd);
+    bool parseJsonMsg(const Json::Value& root, SocketFD fd);                //解析json消息
 
-    bool processMsgTypeCmd(const Json::Value& root, SocketFD fd);
-    bool processMsgTypeResponse(const Json::Value& root, SocketFD fd);
-    bool processMsgTypeChat(const Json::Value& root, SocketFD fd);
-    bool processMsgTypeNotify(const Json::Value& root, SocketFD fd);
+    bool processMsgTypeCmd(const Json::Value& root, SocketFD fd);           //处理控制命令
+    bool processMsgTypeResponse(const Json::Value& root, SocketFD fd);      //处理响应
+    bool processMsgTypeChat(const Json::Value& root, SocketFD fd);          //处理聊天
+    bool processMsgTypeNotify(const Json::Value& root, SocketFD fd);        //处理通知命令
 
-    bool processNotifyRivalInfo(const Json::Value& root, SocketFD fd);
-    bool processPrepareGame(const Json::Value& root, SocketFD fd);
-    bool processCancelPrepareGame(const Json::Value& root, SocketFD fd);
-    bool processStartGame(const Json::Value& root, SocketFD fd);
-    bool processNewPiece(const Json::Value& root, SocketFD fd);
-    bool processGameOver(const Json::Value& root, SocketFD fd);
-    bool processExchangeChessType(const Json::Value& root, SocketFD fd);
+    bool processNotifyRivalInfo(const Json::Value& root, SocketFD fd);      //向玩家发送他的对手的信息
+    bool processPrepareGame(const Json::Value& root, SocketFD fd);          //处理准备游戏
+    bool processCancelPrepareGame(const Json::Value& root, SocketFD fd);    //处理开始游戏
+    bool processStartGame(const Json::Value& root, SocketFD fd);            //
+    bool processNewPiece(const Json::Value& root, SocketFD fd);             //新的对局
+    bool processGameOver(const Json::Value& root, SocketFD fd);             //游戏结束
+    bool processExchangeChessType(const Json::Value& root, SocketFD fd);    //换手
 
     enum GameStatus {
         GAME_RUNNING = 1,

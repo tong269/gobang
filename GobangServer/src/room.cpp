@@ -47,7 +47,7 @@ void Room::addPlayer(const std::string& name, SocketFD fd) {
         API::notifyPlayerInfo(watcher.socketfd, player1.name, player1.type,
                 player2.name, player2.type);
     }
-    //每加入一个玩家，为其分配一个线程处理
+    //一个玩家加入到房间后，就会有一个线程为其一直阻塞，处理该玩家发送的消息
     pool.enqueue([this, fd](){
         while (1) {
             Json::Value root;
@@ -144,19 +144,19 @@ void Room::quitWatcher(SocketFD fd) {
     closeSocket(fd);
     std::cout << watchers.size() << std::endl;
 }
-
+//解析json消息，执行对应函数
 bool Room::parseJsonMsg(const Json::Value& root, SocketFD fd) {
     if (root["type"].isNull())
         return false;
-    std::string msgType = root["type"].asString();
+    std::string msgType = root["type"].asString();//获取消息类型 "command" "response" "chat" "notify"
     
-    if (msgType == "command") {
+    if (msgType == "command") { //准备，取消准备，交换                     
         if (root["cmd"].isNull())
             return false;
         else
             return processMsgTypeCmd(root, fd);
     }
-    if (msgType == "response") {
+    if (msgType == "response") { //响应信息，主要响应是否准备好
         if (root["res_cmd"].isNull())
             return false;
         else
@@ -208,6 +208,31 @@ bool Room::processMsgTypeChat(const Json::Value& root, SocketFD fd) {
     return API::forward(getRival(fd)->socketfd, root); 
 }
 
+/*
+    Accept one connection.
+    Recieved message:
+    {"cmd":"create_room","player_name":"xfd","room_name":"test","type":"command"}
+
+    Recv Ret: 1
+    Sending message
+    length:82  
+    {"desc":"OK","res_cmd":"create_room","room_id":5455,"status":0,"type":"response"}
+
+
+    Accept one connection.
+    Recieved message:
+    {"cmd":"join_room","player_name":"xfd2","room_id":5455,"type":"command"}
+
+    Recv Ret: 1
+    Sending message
+    length:101 
+    {"desc":"","res_cmd":"join_room","rival_name":"xfd","room_name":"test","status":0,"type":"response"}
+
+    Sending message
+    length:63  
+    {"player_name":"xfd2","sub_type":"rival_info","type":"notify"}
+
+*/
 
 bool Room::processMsgTypeNotify(const Json::Value& root, SocketFD fd) {
     std::string subType = root["sub_type"].asString();

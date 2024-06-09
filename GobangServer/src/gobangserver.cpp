@@ -101,7 +101,7 @@ bool GobangServer::start(int port) {
             std::cout << "Recv Ret: " << ret << std::endl;;
 
             if (ret == -1) {
-                closeSocket(connectfd);
+                closeSocket(connectfd);//接收失败就关闭客户端
                 return;
             }
             else if (ret > 0){
@@ -147,12 +147,15 @@ bool GobangServer::processMsgTypeCmd(const Json::Value& root, SocketFD fd) {
 
 //创建一个房间，然后把创建房间的用户加入房间
 bool GobangServer::processCreateRoom(const Json::Value& root, SocketFD fd) {
+    //检查是否填写了房间名和玩家名，没有则直接返回
     if (root["room_name"].isNull() || root["player_name"].isNull())
         return false;
-    
+    //创建房间，并初始化线程池
     Room* room = createRoom();
+    //添加到房间数组里面
     rooms.push_back(room);
     room->setName(root["room_name"].asString());
+    //添加玩家
     room->addPlayer(root["player_name"].asString(), fd);
 
     return API::responseCreateRoom(fd, 0, "OK", room->getId());
