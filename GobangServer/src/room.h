@@ -57,7 +57,7 @@ private:
     bool processStartGame(const Json::Value& root, SocketFD fd);            //
     bool processNewPiece(const Json::Value& root, SocketFD fd);             //新的对局
     bool processGameOver(const Json::Value& root, SocketFD fd);             //游戏结束
-    bool processExchangeChessType(const Json::Value& root, SocketFD fd);    //换手
+    bool processExchangeChessType(const Json::Value& root, SocketFD fd);    //交换黑白
 
     enum GameStatus {
         GAME_RUNNING = 1,
