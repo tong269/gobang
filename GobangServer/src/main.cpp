@@ -16,6 +16,8 @@ int main(int argc, char** argv) {
 
     srand(time(NULL));
 
+
+    //启动服务器
     if (!server.start(10032)) {
         std::cerr << "Start failed!" << std::endl;
         return 1;
