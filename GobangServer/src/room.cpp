@@ -31,21 +31,23 @@ void Room::setPiece(int row, int col, ChessType type) {
     chessPieces[row][col] = type;
 }
 
+//将玩家加入到房间
 void Room::addPlayer(const std::string& name, SocketFD fd) {
+    //添加第一个玩家
     if (numPlayers == 0) {
         player1 = Player(name, fd, CHESS_BLACK);
         numPlayers++;
     }
-    else {
+    else {//第二个玩家
         player2 = Player(name, fd, reverse(player1.type));
         numPlayers++;
     }
-
+    //通知所有观战的玩家，有新玩家加入
     for (auto& watcher : watchers) {
         API::notifyPlayerInfo(watcher.socketfd, player1.name, player1.type,
                 player2.name, player2.type);
     }
-
+    //每加入一个玩家，为其分配一个线程处理
     pool.enqueue([this, fd](){
         while (1) {
             Json::Value root;
