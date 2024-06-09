@@ -66,20 +66,20 @@ private:
     };
 
 private:
-    ThreadPool pool;
-    bool flagShouldDelete = false;
+    ThreadPool pool;                    //线程池，一个房间一个线程池
+    bool flagShouldDelete = false;      //退出标识
 
-    int chessPieces[15][15];
-    GameStatus gameStatus = GAME_END;
-    ChessPieceInfo lastChess;
+    int chessPieces[15][15];            //棋盘
+    GameStatus gameStatus = GAME_END;   //当前游戏状态
+    ChessPieceInfo lastChess;           //上次落子
 
-    int id = -1;
-    std::string name;
-    int numPlayers = 0;
+    int id = -1;                        //房间号
+    std::string name;                   //房间名字
+    int numPlayers = 0;                 //玩家数量
 
-    Player player1;
-    Player player2;
+    Player player1;                     //玩家1
+    Player player2;                     //玩家2
 
-    std::vector<Watcher> watchers;
+    std::vector<Watcher> watchers;      //观众
 };
 

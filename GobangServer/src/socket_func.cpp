@@ -41,6 +41,7 @@ int recvJsonMsg(Json::Value& root, SocketFD fd) {
     char lengthStr[5] = { 0 };
     char msgLengthInfo[13] = { 0 };
 
+    //接收信息
     int n = recv(fd, msgLengthInfo, 12, 0);
     if (n <= 0)
         return -1;
@@ -86,6 +87,7 @@ int recvJsonMsg(Json::Value& root, SocketFD fd) {
     return ret;
 }
 
+//关闭连接
 void closeSocket(SocketFD fd) {
 #ifdef _WIN32
     closesocket(fd);

@@ -248,6 +248,7 @@ Room* GobangServer::createRoom() {
     Room* room = new Room();
 
     while (true) {
+        //获取一个随机数作为房间id
         int randNum = rand() % 9000 + 1000;
         auto iter = std::find(roomsId.begin(), roomsId.end(), randNum);
         if (iter == roomsId.end()) {
