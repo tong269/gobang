@@ -11,7 +11,9 @@ void handleCtrlC(int num);
 void exitFunc();
 
 int main(int argc, char** argv) {
+    //退出时执行exitfunc
     atexit(exitFunc);
+    //处理ctrl + c 信号
     signal(SIGINT, handleCtrlC);
 
     srand(time(NULL));
