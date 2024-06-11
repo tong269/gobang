@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
 
     //启动服务器
-    if (!server.start(10032)) {
+    if (!server.start(6666)) {
         std::cerr << "Start failed!" << std::endl;
         return 1;
     }

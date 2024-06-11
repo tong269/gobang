@@ -1,0 +1,32 @@
+{
+    errdata = "\27[01m\27[Ksrc/socket_func.cpp:\27[m\27[K In function '\27[01m\27[Kbool sendJsonMsg(const Json::Value&, int)\27[m\27[K':\
+\27[01m\27[Ksrc/socket_func.cpp:11:41:\27[m\27[K \27[01;35m\27[Kwarning: \27[m\27[K'\27[01m\27[KFastWriter\27[m\27[K' is deprecated: Use StreamWriterBuilder instead [\27[01;35m\27[K-Wdeprecated-declarations\27[m\27[K]\
+     return sendJsonMsg(Json::FastWriter(\27[01;35m\27[K)\27[m\27[K.write(jsonMsg), fd);\
+                                         \27[01;35m\27[K^\27[m\27[K\
+In file included from \27[01m\27[Ksrc/jsoncpp/json/json.h:13:0\27[m\27[K,\
+                 from \27[01m\27[Ksrc/socket_func.h:19\27[m\27[K,\
+                 from \27[01m\27[Ksrc/socket_func.cpp:1\27[m\27[K:\
+\27[01m\27[Ksrc/jsoncpp/json/writer.h:168:70:\27[m\27[K \27[01;36m\27[Knote: \27[m\27[Kdeclared here\
+ class JSONCPP_DEPRECATED(\"Use StreamWriterBuilder instead\") JSON_API \27[01;36m\27[KFastWriter\27[m\27[K\
+                                                                      \27[01;36m\27[K^~~~~~~~~~\27[m\27[K\
+\27[01m\27[Ksrc/socket_func.cpp:\27[m\27[K In function '\27[01m\27[Kint recvJsonMsg(Json::Value&, int)\27[m\27[K':\
+\27[01m\27[Ksrc/socket_func.cpp:79:22:\27[m\27[K \27[01;35m\27[Kwarning: \27[m\27[K'\27[01m\27[KReader\27[m\27[K' is deprecated: Use CharReader and CharReaderBuilder instead. [\27[01;35m\27[K-Wdeprecated-declarations\27[m\27[K]\
+         Json::Reader \27[01;35m\27[Kreader\27[m\27[K;\
+                      \27[01;35m\27[K^~~~~~\27[m\27[K\
+In file included from \27[01m\27[Ksrc/jsoncpp/json/json.h:11:0\27[m\27[K,\
+                 from \27[01m\27[Ksrc/socket_func.h:19\27[m\27[K,\
+                 from \27[01m\27[Ksrc/socket_func.cpp:1\27[m\27[K:\
+\27[01m\27[Ksrc/jsoncpp/json/reader.h:37:63:\27[m\27[K \27[01;36m\27[Knote: \27[m\27[Kdeclared here\
+     \"Use CharReader and CharReaderBuilder instead.\") JSON_API \27[01;36m\27[KReader\27[m\27[K {\
+                                                               \27[01;36m\27[K^~~~~~\27[m\27[K\
+\27[01m\27[Ksrc/socket_func.cpp:79:22:\27[m\27[K \27[01;35m\27[Kwarning: \27[m\27[K'\27[01m\27[KJson::Reader::Reader()\27[m\27[K' is deprecated: Use CharReader and CharReaderBuilder instead [\27[01;35m\27[K-Wdeprecated-declarations\27[m\27[K]\
+         Json::Reader \27[01;35m\27[Kreader\27[m\27[K;\
+                      \27[01;35m\27[K^~~~~~\27[m\27[K\
+In file included from \27[01m\27[Ksrc/jsoncpp/json/json.h:11:0\27[m\27[K,\
+                 from \27[01m\27[Ksrc/socket_func.h:19\27[m\27[K,\
+                 from \27[01m\27[Ksrc/socket_func.cpp:1\27[m\27[K:\
+\27[01m\27[Ksrc/jsoncpp/json/reader.h:56:3:\27[m\27[K \27[01;36m\27[Knote: \27[m\27[Kdeclared here\
+   \27[01;36m\27[KReader\27[m\27[K();\
+   \27[01;36m\27[K^~~~~~\27[m\27[K\
+"
+}
