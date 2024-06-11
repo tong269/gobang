@@ -356,7 +356,7 @@ bool Room::processGameOver(const Json::Value& root, SocketFD fd) {
 bool Room::processExchangeChessType(const Json::Value& root, SocketFD fd) {
     if (numPlayers != 2)
         return false;
-    //通知对手
+    //通知对手 ll
     return API::forward(getRival(fd)->socketfd, root);
 }
 
