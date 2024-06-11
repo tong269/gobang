@@ -11,6 +11,8 @@ bool sendJsonMsg(const Json::Value& jsonMsg, SocketFD fd) {
     return sendJsonMsg(Json::FastWriter().write(jsonMsg), fd);
 }
 
+
+//向指定fd发送消息，消息格式     |length:xxxx|string|   length后面的字段表示string的长度，客户端拿到后先将string转为Json对象，然后读取消息
 bool sendJsonMsg(const std::string& msg, SocketFD fd) {
     if (msg.empty())
         return false;
@@ -20,6 +22,8 @@ bool sendJsonMsg(const std::string& msg, SocketFD fd) {
     msgSend.reserve(12 + len);
     msgSend += "length:";
     msgSend += std::to_string(len);
+
+    //填充字节
     if (len < 10)
         msgSend += "   ";
     else if (len < 100)
@@ -41,7 +45,7 @@ int recvJsonMsg(Json::Value& root, SocketFD fd) {
     char lengthStr[5] = { 0 };
     char msgLengthInfo[13] = { 0 };
 
-    //接收信息,先接受12个字节 length:(8字节) + int(4字节)
+    //接收信息,先接受12个字节 length:(7字节) + int(4字节) + '\n'(1字节)
     int n = recv(fd, msgLengthInfo, 12, 0);
     if (n <= 0)
         return -1;

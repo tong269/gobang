@@ -11,6 +11,8 @@
 #include <functional>
 #include <stdexcept>
 
+
+//主线程或别的线程不断将需要做的操作封装成一个函数，放进tasks任务队列里面，工作线程不断尝试从任务队列里面取出函数并执行
 class ThreadPool {
 public:
     ThreadPool(size_t);
@@ -20,17 +22,22 @@ public:
     ~ThreadPool();
 private:
     // need to keep track of threads so we can join them
+    //所有工作线程
     std::vector< std::thread > workers;
     // the task queue
+    //任务队列
     std::queue< std::function<void()> > tasks;
     
     // synchronization
+    //互斥量
     std::mutex queue_mutex;
+    //条件变量
     std::condition_variable condition;
     bool stop;
 };
  
 // the constructor just launches some amount of workers
+//构造指定个数个线程thread，然后指定thread的回调函数
 inline ThreadPool::ThreadPool(size_t threads)
     :   stop(false)
 {
@@ -38,7 +45,7 @@ inline ThreadPool::ThreadPool(size_t threads)
         workers.emplace_back(
             [this]
             {
-                for(;;)
+                for(;;)//死循环
                 {
                     std::function<void()> task;
 

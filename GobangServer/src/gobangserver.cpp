@@ -62,7 +62,7 @@ bool GobangServer::start(int port) {
         return false;
     }
 
-    
+    //IP和端口
     struct sockaddr_in servaddr;
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -216,7 +216,7 @@ bool GobangServer::processJoinRoom(const Json::Value& root, SocketFD fd) {
     else
         return false;
 }
-
+//处理观战
 bool GobangServer::processWatchRoom(const Json::Value& root, SocketFD fd) {
     if (root["room_id"].isNull() || root["player_name"].isNull())
         return false;
@@ -226,7 +226,7 @@ bool GobangServer::processWatchRoom(const Json::Value& root, SocketFD fd) {
     Room* room = getRoomById(roomId);
     if (room) {
         API::responseWatchRoom(fd, STATUS_OK, "", room->getName());
-        room->addWatcher(playerName, fd); 
+        room->addWatcher(playerName, fd); //向该房间添加观众
     }
     else{
         API::responseWatchRoom(fd, STATUS_ERROR, "The room is not exist", "");
@@ -263,7 +263,7 @@ Room* GobangServer::createRoom() {
 
     return room;
 }
-
+//通过房间ID拿到房间
 Room* GobangServer::getRoomById(int id) {
     for (int i = 0, size = rooms.size(); i < size; ++i) {
         if (rooms[i]->getId() == id)
