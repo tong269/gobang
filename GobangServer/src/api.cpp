@@ -1,3 +1,4 @@
+//实现了一个简单的API命名空间，用于处理GobangServer中的各种网络通信功能。
 #include "api.h"
 #include "socket_func.h"
 

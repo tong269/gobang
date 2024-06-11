@@ -1,3 +1,4 @@
+//服务器实现
 #include "gobangserver.h"
 
 #include "api.h"
@@ -11,29 +12,30 @@
 #include <random>
 
 
-GobangServer::GobangServer() :
-    pool(10)
-{
+// GobangServer构造函数，初始化线程池并启动管理房间的线程
+GobangServer::GobangServer() : pool(10) {
 #ifdef WIN32
-        WORD sockVersion = MAKEWORD(2, 2);
-        WSADATA wsaData;
-        WSAStartup(sockVersion, &wsaData);
+    WORD sockVersion = MAKEWORD(2, 2);
+    WSADATA wsaData;
+    WSAStartup(sockVersion, &wsaData); // Windows平台初始化套接字库
 #endif
 
+    // 启动一个线程来管理房间
     pool.enqueue([this](){
         while (isRunning) {
             std::cout << "Rooms in use: " << rooms.size() << std::endl;
             for (auto it = rooms.begin(); it != rooms.end(); ) {
                 if ((*it)->shouldDelete()) {
                     std::cout << "Deleting room: " << (*it)->getId() << std::endl;                
-                    delete (*it);
-                    it = rooms.erase(it);
+                    delete (*it); // 删除需要删除的房间
+                    it = rooms.erase(it); // 从列表中移除房间
                 }
                 else {
                     ++it;
                 }
             }
 
+            // 如果没有房间，休眠5秒；否则，休眠1秒
             if (rooms.size() == 0)
                 std::this_thread::sleep_for(std::chrono::seconds(5));
             else
@@ -43,18 +45,20 @@ GobangServer::GobangServer() :
 }
 
 
+// 停止服务器，关闭套接字并停止运行标志
 void GobangServer::stop() {
     std::cout << "\nStopping server" << std::endl;
-    shutdown(socketfd, 2);
+    shutdown(socketfd, 2); // 关闭套接字的读写
     std::this_thread::sleep_for(std::chrono::seconds(1));
     std::cout << "Closing socket" << std::endl;
-    closeSocket(socketfd);
-    isRunning = false;
+    closeSocket(socketfd); // 关闭套接字
+    isRunning = false; // 设置运行标志为false
     std::this_thread::sleep_for(std::chrono::seconds(2));
     std::cout << "Quit successfully" << std::endl;
 }
 
-
+// 启动服务器，绑定端口并监听连接
+// port 端口号
 bool GobangServer::start(int port) {
     socketfd = socket(AF_INET, SOCK_STREAM, 0); //创建套接字，用于监听
     if (socketfd <= 0) {
@@ -113,6 +117,7 @@ bool GobangServer::start(int port) {
     return true;
 }
 
+// 解析JSON消息
 bool GobangServer::parseJsonMsg(const Json::Value& root, SocketFD fd) {
     if (root["type"].isNull()) {
         return false;
@@ -160,6 +165,7 @@ bool GobangServer::processCreateRoom(const Json::Value& root, SocketFD fd) {
 
     return API::responseCreateRoom(fd, 0, "OK", room->getId());
 }
+
 //处理玩家加入房间的请求
 bool GobangServer::processJoinRoom(const Json::Value& root, SocketFD fd) {
     if (root["room_id"].isNull() || root["player_name"].isNull())
@@ -217,6 +223,7 @@ bool GobangServer::processJoinRoom(const Json::Value& root, SocketFD fd) {
         return false;
 }
 
+// 处理玩家观战的请求
 bool GobangServer::processWatchRoom(const Json::Value& root, SocketFD fd) {
     if (root["room_id"].isNull() || root["player_name"].isNull())
         return false;
@@ -235,6 +242,7 @@ bool GobangServer::processWatchRoom(const Json::Value& root, SocketFD fd) {
     return true;
 }
 
+// 实现删除房间的逻辑
 bool GobangServer::processDeleteRoom(const Json::Value& root, SocketFD fd) {
 
     return true;
@@ -244,6 +252,7 @@ bool GobangServer::processDeleteRoom(const Json::Value& root, SocketFD fd) {
 /*****************************************************************************/
 /*****************************************************************************/
 
+// 创建一个新房间
 Room* GobangServer::createRoom() {
     if (rooms.size() > 100)
         return nullptr;
@@ -264,6 +273,7 @@ Room* GobangServer::createRoom() {
     return room;
 }
 
+// 根据房间ID获取房间对象
 Room* GobangServer::getRoomById(int id) {
     for (int i = 0, size = rooms.size(); i < size; ++i) {
         if (rooms[i]->getId() == id)

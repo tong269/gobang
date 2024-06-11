@@ -1,3 +1,7 @@
+/*
+    实现了围棋房间类 Room 的主要功能，
+    包括初始化棋盘、管理玩家和观众、处理消息等
+*/
 #include "room.h"
 
 #include "api.h"
@@ -9,7 +13,7 @@
 
 #define Log(x) std::cout << (x) << std::endl
 
-
+// 房间类构造函数，初始化线程池和棋盘
 Room::Room() :
     pool(MAX_NUM_WATCHERS + 2)
 {
@@ -17,6 +21,7 @@ Room::Room() :
     lastChess = { 0, 0, CHESS_NULL };
 }
 
+// 初始化棋盘
 void Room::initChessBoard() {
     for (int row = 0; row < 15; ++row) {
         for (int col = 0; col < 15; ++col) {
@@ -64,6 +69,7 @@ void Room::addPlayer(const std::string& name, SocketFD fd) {
         }
     });
 }
+
 //添加观众
 void Room::addWatcher(const std::string& name, SocketFD fd) {
     watchers.emplace_back(name, fd);
@@ -107,6 +113,7 @@ void Room::addWatcher(const std::string& name, SocketFD fd) {
         }
     });
 }
+
 //踢出玩家
 void Room::quitPlayer(SocketFD fd) {
     std::cout << "quit player" << std::endl;
@@ -124,6 +131,7 @@ void Room::quitPlayer(SocketFD fd) {
     }
 
     numPlayers--;
+
     //没有玩家，房间应该删除
     if (numPlayers == 0) {
         flagShouldDelete = true;
@@ -140,6 +148,7 @@ void Room::quitPlayer(SocketFD fd) {
     std::cout << numPlayers << std::endl;
     closeSocket(fd);
 }
+
 //踢出观众
 void Room::quitWatcher(SocketFD fd) {
     std::cout << "quit watcher" << std::endl;
@@ -156,6 +165,7 @@ void Room::quitWatcher(SocketFD fd) {
     closeSocket(fd);
     std::cout << watchers.size() << std::endl;
 }
+
 //解析json消息，执行对应函数
 bool Room::parseJsonMsg(const Json::Value& root, SocketFD fd) {
     if (root["type"].isNull())
@@ -186,6 +196,7 @@ bool Room::parseJsonMsg(const Json::Value& root, SocketFD fd) {
     return false;
 }
 
+// 处理命令类型的消息
 bool Room::processMsgTypeCmd(const Json::Value& root, SocketFD fd) {
     std::string cmd = root["cmd"].asString();
     if (cmd == "prepare")
@@ -197,6 +208,7 @@ bool Room::processMsgTypeCmd(const Json::Value& root, SocketFD fd) {
     return true;
 }
 
+// 处理响应类型的消息
 bool Room::processMsgTypeResponse(const Json::Value& root, SocketFD fd) {
     std::string res_cmd = root["res_cmd"].asString();
     if (res_cmd == "prepare") {
@@ -211,6 +223,7 @@ bool Room::processMsgTypeResponse(const Json::Value& root, SocketFD fd) {
     return API::forward(getRival(fd)->socketfd, root);
 }
 
+// 处理聊天类型的消息
 bool Room::processMsgTypeChat(const Json::Value& root, SocketFD fd) {
 
     //发送消息给房间内其他人
@@ -248,6 +261,7 @@ bool Room::processMsgTypeChat(const Json::Value& root, SocketFD fd) {
 
 */
 
+// 处理通知类型的消息
 bool Room::processMsgTypeNotify(const Json::Value& root, SocketFD fd) {
     std::string subType = root["sub_type"].asString();
     if (subType == "new_piece")             //落子
@@ -259,6 +273,7 @@ bool Room::processMsgTypeNotify(const Json::Value& root, SocketFD fd) {
     return false;
 }
 
+// 处理对手信息的通知消息
 bool Room::processNotifyRivalInfo(const Json::Value& root, SocketFD fd) {
     Player* player = getPlayer(fd);
     if (!root["player_name"].isNull())
@@ -267,6 +282,7 @@ bool Room::processNotifyRivalInfo(const Json::Value& root, SocketFD fd) {
     return API::forward(getRival(fd)->socketfd, root);
 }
 
+// 处理准备游戏的命令
 bool Room::processPrepareGame(const Json::Value& root, SocketFD fd) {
     Player* player = getPlayer(fd);
 
@@ -298,6 +314,7 @@ bool Room::processPrepareGame(const Json::Value& root, SocketFD fd) {
     }
 }
 
+// 处理取消准备游戏命令
 bool Room::processCancelPrepareGame(const Json::Value& root, SocketFD fd) {
     getPlayer(fd)->prepare = false;
     for (auto& watcher : watchers)
@@ -305,7 +322,7 @@ bool Room::processCancelPrepareGame(const Json::Value& root, SocketFD fd) {
     return  API::notifyGameCancelPrepare(getRival(fd)->socketfd);
 }
 
-
+// 处理新棋子通知
 bool Room::processNewPiece(const Json::Value& root, SocketFD fd) {
     if (root["row"].isNull() || root["col"].isNull() || root["chess_type"].isNull())
         return false;
@@ -322,6 +339,7 @@ bool Room::processNewPiece(const Json::Value& root, SocketFD fd) {
     return API::notifyNewPiece(getRival(fd)->socketfd, row, col, chessType);
 }
 
+// 处理游戏结束通知
 bool Room::processGameOver(const Json::Value& root, SocketFD fd) {
     if (root["game_result"].isNull())
         return false;
@@ -341,6 +359,7 @@ bool Room::processGameOver(const Json::Value& root, SocketFD fd) {
     return true;
 }
 
+// 处理交换棋子类型的命令
 bool Room::processExchangeChessType(const Json::Value& root, SocketFD fd) {
     if (numPlayers != 2)
         return false;
@@ -348,6 +367,7 @@ bool Room::processExchangeChessType(const Json::Value& root, SocketFD fd) {
     return API::forward(getRival(fd)->socketfd, root);
 }
 
+// 获取玩家对象
 Player* Room::getPlayer(SocketFD fd) {
     if (player1.socketfd == fd)
         return &player1;
@@ -357,6 +377,7 @@ Player* Room::getPlayer(SocketFD fd) {
         return nullptr;
 }
 
+// 获取对手玩家对象
 Player* Room::getRival(int my_fd) {
     if (player1.socketfd == my_fd)
         return &player2;
