@@ -79,7 +79,7 @@ bool responseJoinRoom(SocketFD fd, int status_code, const std::string &desc,
     root["rival_name"] = rival_name;
     return sendJsonMsg(root, fd);
 }
-
+//向客户端响应，观战是否成功
 bool responseWatchRoom(SocketFD fd, int status_code, const std::string& desc,
         const std::string room_name) {
     Json::Value root;
@@ -88,6 +88,7 @@ bool responseWatchRoom(SocketFD fd, int status_code, const std::string& desc,
     root["status"] = status_code;
     root["desc"] = desc; 
     root["room_name"] = room_name;
+    //封装好消息后调用sendJsonMsg发送，sendJsonMsg会调用json里面函数
     return sendJsonMsg(root, fd);
 }
 
