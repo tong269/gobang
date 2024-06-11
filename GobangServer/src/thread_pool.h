@@ -48,7 +48,8 @@ inline ThreadPool::ThreadPool(size_t threads)
                 for(;;)//死循环
                 {
                     std::function<void()> task;
-
+                    
+                    //尝试从任务队列中取出一个任务
                     {
                         std::unique_lock<std::mutex> lock(this->queue_mutex);
                         this->condition.wait(lock,
@@ -58,7 +59,7 @@ inline ThreadPool::ThreadPool(size_t threads)
                         task = std::move(this->tasks.front());
                         this->tasks.pop();
                     }
-
+                    //执行，执行的就是传入的函数
                     task();
                 }
             }

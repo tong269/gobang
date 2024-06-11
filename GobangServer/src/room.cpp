@@ -168,7 +168,7 @@ bool Room::parseJsonMsg(const Json::Value& root, SocketFD fd) {
         else
             return processMsgTypeCmd(root, fd);
     }
-    if (msgType == "response") { //响应信息，主要响应是否准备好
+    if (msgType == "response") { //响应信息，响应是否同意交换黑白
         if (root["res_cmd"].isNull())
             return false;
         else
@@ -185,7 +185,7 @@ bool Room::parseJsonMsg(const Json::Value& root, SocketFD fd) {
 
     return false;
 }
-
+//玩家加入后游戏开始前，对应三种操作  准备 | 取消准备| 交换
 bool Room::processMsgTypeCmd(const Json::Value& root, SocketFD fd) {
     std::string cmd = root["cmd"].asString();
     if (cmd == "prepare")
@@ -202,6 +202,8 @@ bool Room::processMsgTypeResponse(const Json::Value& root, SocketFD fd) {
     if (res_cmd == "prepare") {
         if (root["accept"].isNull())
             return false;
+
+        //同一交换
         if (root["accept"].asBool()) {
             ChessType tmp = player1.type;
             player1.type = player2.type;
@@ -266,23 +268,29 @@ bool Room::processNotifyRivalInfo(const Json::Value& root, SocketFD fd) {
 
     return API::forward(getRival(fd)->socketfd, root);
 }
-
+//处理准备事件
+//如果房间只有一名玩家，则告知该玩家需等待对手加入
+//如果房间有两名玩家，两名玩家都准备好时，修改room的状态为 game_running , 如果另外一名玩家还没准备好， game_prepare
 bool Room::processPrepareGame(const Json::Value& root, SocketFD fd) {
     Player* player = getPlayer(fd);
 
     if (numPlayers == 2) {
         player->prepare = true;
+        //都准备好了
         if (player1.prepare && player2.prepare) {
             gameStatus = GAME_RUNNING;
             initChessBoard();
             lastChess = { 0, 0, CHESS_NULL };
             player1.prepare = false;
             player2.prepare = false;
+
+            //通知房间内所有人游戏开始了
             API::notifyGameStart(fd);
             for (auto& watcher : watchers)
                 API::notifyGameStart(watcher.socketfd);
             return API::notifyGameStart(getRival(fd)->socketfd);
         }
+        //对手还没准备
         else {
             gameStatus = GAME_PREPARE;
             API::responsePrepare(fd, STATUS_OK, "OK");
@@ -291,15 +299,19 @@ bool Room::processPrepareGame(const Json::Value& root, SocketFD fd) {
             return API::forward(getRival(fd)->socketfd, root);
         }
     }
+    //人数不够
     else {
         player->prepare = false;
         std::string desc = "Please wait for the other player to join";
+        //通知该玩家，等待加入
         return API::responsePrepare(fd, STATUS_ERROR, desc);
     }
 }
 
 bool Room::processCancelPrepareGame(const Json::Value& root, SocketFD fd) {
     getPlayer(fd)->prepare = false;
+
+    //通知所有人
     for (auto& watcher : watchers)
         API::notifyGameCancelPrepare(watcher.socketfd);
     return  API::notifyGameCancelPrepare(getRival(fd)->socketfd);

@@ -9,7 +9,8 @@ namespace API {
 
 /***********************
  * Local functions
-***********************/ static bool sendSimpleCmd(SocketFD fd, const std::string& cmd) { Json::Value root;
+***********************/ 
+static bool sendSimpleCmd(SocketFD fd, const std::string& cmd) { Json::Value root;
     root["type"] = "command";
     root["cmd"] = cmd;
     return sendJsonMsg(root, fd);
@@ -59,6 +60,7 @@ bool forward(SocketFD fd, const Json::Value& root) {
  * Type: Response 
 ***********************/
 bool responseCreateRoom(SocketFD fd, int status_code, const std::string& desc, int room_id) {
+    //封装信息，发送给客户端
     Json::Value root;
     root["type"] =  "response";
     root["res_cmd"] = "create_room";

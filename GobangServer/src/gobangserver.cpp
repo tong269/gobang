@@ -157,7 +157,7 @@ bool GobangServer::processCreateRoom(const Json::Value& root, SocketFD fd) {
     room->setName(root["room_name"].asString());
     //添加玩家
     room->addPlayer(root["player_name"].asString(), fd);
-
+    //发送响应，创建房间成功
     return API::responseCreateRoom(fd, 0, "OK", room->getId());
 }
 //处理玩家加入房间的请求
@@ -207,11 +207,11 @@ bool GobangServer::processJoinRoom(const Json::Value& root, SocketFD fd) {
         statusCode = STATUS_OK;
     } while (false);
 
-    // response new player
+    // 成功加入房间后，向发起加入房间请求的玩家通知他加入成功了
     API::responseJoinRoom(fd, statusCode, desc, roomName, rivalname);
 
     if (room && statusCode == STATUS_OK)
-        // notify old player
+        //通知对手
         return API::notifyRivalInfo(room->getPlayer1().socketfd, playerName);
     else
         return false;
@@ -225,10 +225,12 @@ bool GobangServer::processWatchRoom(const Json::Value& root, SocketFD fd) {
     std::string playerName = root["player_name"].asString();
     Room* room = getRoomById(roomId);
     if (room) {
+        //通知发起加入请求的玩家，他加入成功了
         API::responseWatchRoom(fd, STATUS_OK, "", room->getName());
         room->addWatcher(playerName, fd); //向该房间添加观众
     }
     else{
+        //房间不存在，通知一下
         API::responseWatchRoom(fd, STATUS_ERROR, "The room is not exist", "");
     }
 
