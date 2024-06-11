@@ -178,6 +178,7 @@ bool Room::parseJsonMsg(const Json::Value& root, SocketFD fd) {
         else
             return processMsgTypeCmd(root, fd);
     }
+    if (msgType == "response") { //响应信息，响应是否同意交换黑白 test test2
     if (msgType == "response") { //响应信息，主要响应是否准备好
         if (root["res_cmd"].isNull())
             return false;
